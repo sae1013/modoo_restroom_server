@@ -1,11 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-
+import { CreateUserDto, UpdateUserDto } from './dto/user-dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/user.entity';
+import { Repository } from 'typeorm';
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
+  async create(newUser: CreateUserDto) {
+    const duplicatedUser = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email: newUser.email })
+      .getOne();
+    if (duplicatedUser) {
+      // 중복회원
+      return;
+    }
   }
 
   findAll() {
