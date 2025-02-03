@@ -1,0 +1,15 @@
+### 1. 화장실 목록 조회 (GET 요청)
+@baseUrl = http://localhost:8000
+GET {{baseUrl}}/restrooms
+
+
+### 2. 화장실 생성 (POST 요청)
+POST {{baseUrl}}/restrooms/create
+Content-Type: application/json
+
+{
+  "name": "Central Park",
+  "lat": 37.77754,
+  "lng": 127.334,
+  "addr": "천안시"
+}

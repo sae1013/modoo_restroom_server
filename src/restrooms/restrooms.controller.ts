@@ -5,9 +5,10 @@ import { UpdateRestroomDto } from './dto/update-restroom.dto';
 
 @Controller('restrooms')
 export class RestroomsController {
-  constructor(private readonly restroomsService: RestroomsService) {}
+  constructor(private readonly restroomsService: RestroomsService) {
+  }
 
-  @Post()
+  @Post('create')
   create(@Body() createRestroomDto: CreateRestroomDto) {
     return this.restroomsService.create(createRestroomDto);
   }
@@ -22,13 +23,13 @@ export class RestroomsController {
     return this.restroomsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRestroomDto: UpdateRestroomDto) {
-    return this.restroomsService.update(+id, updateRestroomDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.restroomsService.remove(+id);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateRestroomDto: UpdateRestroomDto) {
+  //   return this.restroomsService.update(+id, updateRestroomDto);
+  // }
+  //
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.restroomsService.remove(+id);
+  // }
 }

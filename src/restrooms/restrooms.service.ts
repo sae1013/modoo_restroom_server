@@ -10,20 +10,33 @@ export class RestroomsService {
   constructor(
     @InjectRepository(Restroom)
     private readonly restroomRepository: Repository<Restroom>,
-  ) {}
+  ) {
+  }
 
-  // QueryBuilder
   async createRestRoomWithQB(
     createRestroomDto: CreateRestroomDto,
-  ): Promise<Restroom | null> {
-    const { name, lat, lng } = createRestroomDto;
-  }
-  create(createRestroomDto: CreateRestroomDto) {
-    return 'This action adds a new restroom';
+  ): Promise<Restroom> {
+    const { name, lat, lng, addr } = createRestroomDto;
+
+    const result = await this.restroomRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Restroom)
+      .values({ name, lat, lng, addr }).returning('*').execute();
+
+    return result.raw[0];
   }
 
-  findAll() {
-    return `This action returns all restrooms`;
+  async create(createRestroomDto: CreateRestroomDto) {
+    return await this.createRestRoomWithQB(createRestroomDto);
+  }
+
+  async findAllWithQueryBuilder(): Promise<Restroom[]> {
+    return this.restroomRepository.createQueryBuilder('restroom').select(['restroom.id', 'restroom.lat', 'restroom.lng', 'restroom.addr']).getMany();
+  }
+
+  async findAll() {
+    return await this.findAllWithQueryBuilder();
   }
 
   findOne(id: number) {

@@ -4,9 +4,9 @@ import { DatabaseController } from './database.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Restroom } from 'src/restrooms/entities/restroom.entity';
+
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -28,4 +28,5 @@ import { Restroom } from 'src/restrooms/entities/restroom.entity';
   controllers: [DatabaseController],
   providers: [DatabaseService],
 })
-export class DatabaseModule {}
+export class DatabaseModule {
+}
