@@ -10,8 +10,7 @@ export class RestroomsService {
   constructor(
     @InjectRepository(Restroom)
     private readonly restroomRepository: Repository<Restroom>,
-  ) {
-  }
+  ) {}
 
   async createRestRoomWithQB(
     createRestroomDto: CreateRestroomDto,
@@ -22,7 +21,9 @@ export class RestroomsService {
       .createQueryBuilder()
       .insert()
       .into(Restroom)
-      .values({ name, lat, lng, addr }).returning('*').execute();
+      .values({ name, lat, lng, addr })
+      .returning('*')
+      .execute();
 
     return result.raw[0];
   }
@@ -32,7 +33,10 @@ export class RestroomsService {
   }
 
   async findAllWithQueryBuilder(): Promise<Restroom[]> {
-    return this.restroomRepository.createQueryBuilder('restroom').select(['restroom.id', 'restroom.lat', 'restroom.lng', 'restroom.addr']).getMany();
+    return this.restroomRepository
+      .createQueryBuilder('restroom')
+      .select(['restroom.id', 'restroom.lat', 'restroom.lng', 'restroom.addr'])
+      .getMany();
   }
 
   async findAll() {

@@ -9,5 +9,4 @@ import { Restroom } from './entities/restroom.entity';
   controllers: [RestroomsController],
   providers: [RestroomsService],
 })
-export class RestroomsModule {
-}
+export class RestroomsModule {}

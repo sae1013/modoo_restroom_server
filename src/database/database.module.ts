@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseService } from './database.service';
-import { DatabaseController } from './database.controller';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Restroom } from 'src/restrooms/entities/restroom.entity';
@@ -10,7 +9,9 @@ import { Restroom } from 'src/restrooms/entities/restroom.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
+
       useFactory: (configService: ConfigService) => {
+        console.log(configService.get<string>('DB_PASSWORD'));
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -25,8 +26,5 @@ import { Restroom } from 'src/restrooms/entities/restroom.entity';
       },
     }),
   ],
-  controllers: [DatabaseController],
-  providers: [DatabaseService],
 })
-export class DatabaseModule {
-}
+export class DatabaseModule {}
