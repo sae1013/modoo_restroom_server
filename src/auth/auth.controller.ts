@@ -11,8 +11,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: { email: string, password: string }, @Req() req: Request) {
     try {
+      console.log('body.email', body.email);
       const user = await this.authService.validateUser(body.email, body.password);
-      req.session.email = user.email;
+      req.session.user = {
+        email: user.email,
+      };
       return { message: '로그인 성공' };
     } catch (error) {
       throw new UnauthorizedException('로그인 실패');

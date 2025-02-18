@@ -13,3 +13,27 @@ Content-Type: application/json
   "lng": 127.334,
   "addr": "천안시"
 }
+
+### 유저생성
+POST {{baseUrl}}/users/signup
+Content-Type: application/json
+
+{
+  "name": "정민우",
+  "nickname": "황오라기",
+  "password": "2342343",
+  "email": "test1234@gmail.com"
+}
+
+### 로그인
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test1234@gmail.com",
+  "password": "2342343"
+}
+
+### 유저인증 Guard API Test (로그인이 필요한 API 호출 시)
+GET {{baseUrl}}/private
+Content-Type: application/json

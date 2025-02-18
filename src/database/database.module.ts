@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Restroom } from 'src/restrooms/entities/restroom.entity';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
@@ -11,7 +12,6 @@ import { Restroom } from 'src/restrooms/entities/restroom.entity';
       inject: [ConfigService],
 
       useFactory: (configService: ConfigService) => {
-        console.log(configService.get<string>('DB_PASSWORD'));
         return {
           type: 'postgres',
           host: configService.get<string>('DB_HOST'),
@@ -19,7 +19,7 @@ import { Restroom } from 'src/restrooms/entities/restroom.entity';
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
           database: configService.get<string>('DB_DATABASE'),
-          entities: [Restroom],
+          entities: [Restroom, User],
           synchronize: true,
           logging: true,
         };
@@ -27,4 +27,5 @@ import { Restroom } from 'src/restrooms/entities/restroom.entity';
     }),
   ],
 })
-export class DatabaseModule {}
+export class DatabaseModule {
+}

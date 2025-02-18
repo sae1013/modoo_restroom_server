@@ -7,10 +7,12 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=sae1013d
+      - POSTGRES_USER=sae1013
       - POSTGRES_PASSWORD=1234
       - POSTGRES_DB=restroom
     volumes:
       - pgdata:/var/lib/postgresql/data
 volumes:
   pgdata:
+
+# docker-compose down -v 엔터티가 변경된 경우 볼륨을 모두 삭제해야 함
