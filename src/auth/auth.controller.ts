@@ -19,7 +19,7 @@ export class AuthController {
       const token = await this.authService.login(user);
       res.cookie('access_token', token, {
         httpOnly: true,
-        maxAge: 3 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
         secure: false,
         sameSite: 'lax',
       });

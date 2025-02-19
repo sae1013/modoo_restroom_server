@@ -7,7 +7,6 @@ import { Request } from 'express';
 // 커스텀 토큰 추출 함수: 쿠키에서 access_token 키를 사용해 JWT를 추출
 const cookieExtractor = (req: Request): string | null => {
   let token = null;
-  console.log('cookie', req.cookies);
   if (req && req.cookies) {
     token = req.cookies['access_token'];
   }
@@ -26,6 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  // Guard를 사용하고, JWT 인증에 성공하면 return 값을 req에 박아서 넘겨준다.
   async validate(payload: any) {
     return { email: payload.email };
   }
