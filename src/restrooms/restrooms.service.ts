@@ -10,7 +10,8 @@ export class RestroomsService {
   constructor(
     @InjectRepository(Restroom)
     private readonly restroomRepository: Repository<Restroom>,
-  ) {}
+  ) {
+  }
 
   async createRestRoomWithQB(
     createRestroomDto: CreateRestroomDto,

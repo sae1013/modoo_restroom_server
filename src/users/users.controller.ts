@@ -5,10 +5,12 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Delete, Req, UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
+import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
+import { Request, Response } from 'express';
 
 @Controller('users')
 export class UsersController {
@@ -20,9 +22,11 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Post('/login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.usersService.login(loginUserDto);
+  @UseGuards(JwtAuthGuard)
+  @Get('/profile')
+  getUserProfile(@Req() req: Request) {
+    const { email } = req.user as any; // TODO: Request의 User 확장해서 사용하기.
+    return this.usersService.getUserProfile(email);
   }
 
   @Get()

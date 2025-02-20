@@ -9,10 +9,10 @@ POST {{baseUrl}}/restrooms/create
 Content-Type: application/json
 
 {
-  "name": "Central Park",
-  "lat": 37.77754,
-  "lng": 127.334,
-  "addr": "천안시"
+  "name": "더리버사이드호텔",
+  "lat": "127.0181091",
+  "lng": "37.5186534",
+  "addr": "서울특별시 서초구 잠원동  6-1"
 }
 
 ### 유저생성
@@ -38,3 +38,7 @@ Content-Type: application/json
 ### 유저인증 Guard API Test (로그인이 필요한 API 호출 시)
 GET {{baseUrl}}/private
 Content-Type: application/json
+
+### 유저 프로필 가져오기
+GET {{baseUrl}}/users/profile
+Cookie: access_token={{token}}

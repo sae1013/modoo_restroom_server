@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto, FindUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -37,8 +37,16 @@ export class UsersService {
     return insertResult.raw[0];
   }
 
-  async login(userInfo: LoginUserDto) {
-    // 로그인 로직 작성
+  async getUserProfile(email: string) {
+    const user = await this.userRepository
+      .createQueryBuilder('user').where('user.email = :email', { email })
+      .getOne();
+
+    if (!user) {
+      throw new UnauthorizedException('사용자 정보를 찾을 수 없습니다.');
+    }
+    const { password: _ignored, ...result } = user;
+    return result;
   }
 
   findAll() {

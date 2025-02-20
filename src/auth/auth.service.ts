@@ -37,15 +37,4 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async getUserProfile(email: string) {
-    const user = await this.userRepository
-      .createQueryBuilder('user').where('user.email = :email', { email })
-      .getOne();
-
-    if (!user) {
-      throw new UnauthorizedException('사용자 정보를 찾을 수 없습니다.');
-    }
-    const { password: _ignored, ...result } = user;
-    return result;
-  }
 }
