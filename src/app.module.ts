@@ -7,6 +7,7 @@ import { RestroomsModule } from './restrooms/restrooms.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { MembershipModule } from './membership/membership.module';
 
 @Module({
   imports: [
@@ -16,10 +17,12 @@ import { AuthModule } from './auth/auth.module';
     }),
     DatabaseModule,
     RestroomsModule,
+    MembershipModule,
     UsersModule,
     AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+}

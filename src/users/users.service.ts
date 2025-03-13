@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto, FindUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
+import { CreateUserDto, FindUserByEmailDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -53,7 +53,7 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  findOne(userInfo: FindUserDto) {
+  findOne(userInfo: FindUserByEmailDto) {
 
   }
 
