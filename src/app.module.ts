@@ -8,10 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MembershipModule } from './membership/membership.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-// import * as redisStore from 'cache-manager-redis-store';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
-import { RedisOptions } from './auth/configs/redis-options';
+import { RedisClientModuleModule } from './redis-client-module/redis-client-module.module';
 
 
 @Module({
@@ -20,20 +17,16 @@ import { RedisOptions } from './auth/configs/redis-options';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
-    CacheModule.registerAsync(RedisOptions),
+    RedisClientModuleModule,
     DatabaseModule,
     RestroomsModule,
     MembershipModule,
     UsersModule,
     AuthModule,
+    RedisClientModuleModule,
   ],
   controllers: [AppController],
-  providers: [AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {
 }

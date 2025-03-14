@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 export class CreateUserDto {
   @ApiProperty(
@@ -12,13 +13,19 @@ export class CreateUserDto {
 
   @ApiProperty(
     {
+      description: '핸드폰번호',
+      example: '01083619223',
+    },
+  )
+  readonly phoneNumber: string;
+
+  @ApiProperty(
+    {
       description: '패스워드',
       example: 'qweqrdf1234124',
     },
   )
   readonly password: string;
-
-  readonly nickname?: string;
 
   @ApiProperty({
     description: '이름(본명)',

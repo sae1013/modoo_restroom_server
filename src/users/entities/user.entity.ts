@@ -24,6 +24,9 @@ export class User {
   @Column({ nullable: true })
   nickname?: string;
 
+  @Column({ nullable: true })
+  phoneNumber: string;
+
   @Column({ default: false, nullable: true })
   admin?: boolean;
 
@@ -35,5 +38,5 @@ export class User {
 
   @ManyToOne(() => Membership, { nullable: true })
   @JoinColumn({ name: 'membership_id' })
-  membership?: Membership;
+  membership: Membership;
 }
