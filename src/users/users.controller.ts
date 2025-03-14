@@ -22,11 +22,11 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('/profile')
-  getUserProfile(@Req() req: Request) {
-    const { email } = req.user as any; // TODO: Request의 User 확장해서 사용하기.
-    return this.usersService.getUserProfile(email);
+  // @UseGuards(JwtAuthGuard)
+  @Get('/profile/email/:email')
+  async getUserProfile(@Req() req: Request, @Param('email') email: string) {
+    const userProfile = await this.usersService.getUserProfileByEmail(email);
+    return userProfile;
   }
 
   @Get()

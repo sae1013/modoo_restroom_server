@@ -52,18 +52,29 @@ export class UsersService {
     const { email, name, nickname, phoneNumber } = insertResult.raw[0];
 
     return {
-      email, name, nickname, phoneNumber, membershipName: freeMembership?.name,
+      email, name, nickname, phoneNumber, membership: { name: freeMembership?.name },
     };
   }
 
-  async getUserProfile(email: string) {
+  async getUserProfileByEmail(email: string) {
     const user = await this.userRepository
-      .createQueryBuilder('user').where('user.email = :email', { email })
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .leftJoinAndSelect('user.membership', 'membership')
+      .select([
+        'user.id',
+        'user.email',
+        'user.name',
+        'user.nickname',
+        'user.phoneNumber',
+        'membership.name',
+      ])
       .getOne();
-
+    console.log(user);
     if (!user) {
       throw new UnauthorizedException('사용자 정보를 찾을 수 없습니다.');
     }
+
     const { password: _ignored, ...result } = user;
     return result;
   }
