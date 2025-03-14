@@ -12,6 +12,13 @@ services:
       - POSTGRES_DB=restroom
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+#    restart: always 컨테이너 중단시 자동으로 재기동 옵션
 volumes:
   pgdata:
 
