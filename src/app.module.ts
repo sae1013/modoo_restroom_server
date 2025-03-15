@@ -10,7 +10,6 @@ import { AuthModule } from './auth/auth.module';
 import { MembershipModule } from './membership/membership.module';
 import { RedisClientModuleModule } from './redis-client-module/redis-client-module.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,10 +22,8 @@ import { RedisClientModuleModule } from './redis-client-module/redis-client-modu
     MembershipModule,
     UsersModule,
     AuthModule,
-    RedisClientModuleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-}
+export class AppModule {}

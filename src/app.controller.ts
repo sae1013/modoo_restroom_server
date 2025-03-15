@@ -1,13 +1,11 @@
-import { Controller, Get, Inject, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { JwtAuthGuard } from './auth/guards/jwt.auth.guard';
 import { Request } from 'express';
-import { RedisClientType } from 'redis';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {
-  }
+  constructor(private readonly appService: AppService) {}
 
   @UseGuards(JwtAuthGuard)
   @Get('/private')
@@ -19,5 +17,4 @@ export class AppController {
   PublicHello(): string {
     return this.appService.getHello();
   }
-
 }

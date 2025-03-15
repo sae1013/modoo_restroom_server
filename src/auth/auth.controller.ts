@@ -1,21 +1,41 @@
-import { Body, Controller, Get, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { User } from '../users/entities/user.entity';
+import { RequestAuthCodeDto } from './dto/request-auth-code.dto';
+import { AuthenticateSmsDto } from './dto/authenticate-sms.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-  }
-
+  constructor(private readonly authService: AuthService) {}
+  /**
+   * 사용자 로그인 API_101
+   */
   @Post('login')
-  async login(@Body() body: {
-    email: string,
-    password: string
-  }, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body()
+    body: {
+      email: string;
+      password: string;
+    },
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     try {
-      const user: Omit<User, 'password'> = await this.authService.validateUser(body.email, body.password);
+      const user: Omit<User, 'password'> = await this.authService.validateUser(
+        body.email,
+        body.password,
+      );
       const token = await this.authService.login(user);
       res.cookie('access_token', token, {
         httpOnly: true,
@@ -29,21 +49,29 @@ export class AuthController {
     }
   }
 
+  /**
+   * 사용자 로그아웃 API_102
+   */
   @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  async profile(@Req() req: Request) {
-    // const userProfile = await this.authService.getUserProfile(req.session.user.email);
-    // return { user: userProfile };
+  @Get('logout')
+  logout() {}
+
+  /**
+   * SMS 인증번호 요청 API_103
+   */
+  @Post('/sms/request')
+  async requestAuthCode(@Body() requestAuthCodeDto: RequestAuthCodeDto) {
+    const authCode = await this.authService.requestAuthCode(requestAuthCodeDto);
+    return { authCode };
+    //
+    // naver SMS에 인증번호 요청.
   }
 
-  // 로그아웃 엔드포인트: 세션을 삭제
-  // @Post('logout')
-  // logout(@Req() req: Request) {
-  //   req.session.destroy(err => {
-  //     if (err) {
-  //       console.error('세션 삭제 오류', err);
-  //     }
-  //   });
-  //   return { message: '로그아웃 성공' };
-  // }
+  /**
+   * SMS 핸드폰 번호인증(인증코드 확인) API_104
+   */
+  @Post('/sms')
+  async authenticateSms(@Body() authenticateSmsDto: AuthenticateSmsDto) {
+    await this.authService.authenticateSmsCode(authenticateSmsDto);
+  }
 }

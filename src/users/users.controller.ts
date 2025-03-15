@@ -5,7 +5,9 @@ import {
   Body,
   Patch,
   Param,
-  Delete, Req, UseGuards,
+  Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
@@ -14,9 +16,11 @@ import { Request, Response } from 'express';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-  }
+  constructor(private readonly usersService: UsersService) {}
 
+  /**
+   * 회원가입 API_201
+   */
   @Post('/signup')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
