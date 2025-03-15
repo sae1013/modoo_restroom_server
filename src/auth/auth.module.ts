@@ -7,9 +7,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategy/jwt.strategy';
+import { CoolsmsModule } from '../coolsms/coolsms.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), PassportModule, JwtModule.registerAsync({
+  imports: [TypeOrmModule.forFeature([User]), PassportModule, CoolsmsModule, JwtModule.registerAsync({
     // ConfigService를 DI로 주입
     inject: [ConfigService],
     useFactory: (configService: ConfigService) => ({

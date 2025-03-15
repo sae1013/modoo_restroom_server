@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { MembershipModule } from './membership/membership.module';
 import { RedisClientModuleModule } from './redis-client-module/redis-client-module.module';
+import { CoolsmsModule } from './coolsms/coolsms.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RedisClientModuleModule } from './redis-client-module/redis-client-modu
     MembershipModule,
     UsersModule,
     AuthModule,
+    CoolsmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

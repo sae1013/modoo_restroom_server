@@ -17,7 +17,9 @@ import { AuthenticateSmsDto } from './dto/authenticate-sms.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {
+  }
+
   /**
    * 사용자 로그인 API_101
    */
@@ -54,15 +56,16 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('logout')
-  logout() {}
+  logout() {
+  }
 
   /**
    * SMS 인증번호 요청 API_103
    */
   @Post('/sms/request')
   async requestAuthCode(@Body() requestAuthCodeDto: RequestAuthCodeDto) {
-    const authCode = await this.authService.requestAuthCode(requestAuthCodeDto);
-    return { authCode };
+    await this.authService.requestAuthCode(requestAuthCodeDto);
+    return { status: 200 };
     //
     // naver SMS에 인증번호 요청.
   }
@@ -73,5 +76,6 @@ export class AuthController {
   @Post('/sms')
   async authenticateSms(@Body() authenticateSmsDto: AuthenticateSmsDto) {
     await this.authService.authenticateSmsCode(authenticateSmsDto);
+    return { status: 200 };
   }
 }
