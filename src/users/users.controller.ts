@@ -14,6 +14,8 @@ import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { Request, Response } from 'express';
 import { RequestPasswordResetVerificationCodeDto } from './dto/request-password-verification.dto';
+import { VerifyPasswordResetDto } from './dto/verify-password-reset.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
@@ -62,10 +64,12 @@ export class UsersController {
   /**
    * 비밀번호 재설정 요청 생성 API_204
    */
-  // DTO 필요, 가입 시 입력한 메일주소를 작성해야함.
   @Post('/password-reset')
   async requestPasswordResetVerificationCode(@Body() requestPasswordResetVerificationCodeDto: RequestPasswordResetVerificationCodeDto) {
-    this.usersService.requestPasswordResetVerificationCode(requestPasswordResetVerificationCodeDto);
+    await this.usersService.requestPasswordResetVerificationCode(requestPasswordResetVerificationCodeDto);
+    return {
+      status: 200,
+    };
   }
 
   // DTO 필요.
@@ -73,8 +77,8 @@ export class UsersController {
    * 비밀번호 재설정 인증코드 검증 API_205
    */
   @Post('/password-reset/verify-code')
-  async passwordResetVerifyCode() {
-    this.usersService.passwordResetVerifyCode();
+  async passwordResetVerifyCode(@Body() verifyPasswordResetDto: VerifyPasswordResetDto) {
+    await this.usersService.passwordResetVerifyCode(verifyPasswordResetDto);
     return {
       status: 200,
     };
@@ -85,8 +89,11 @@ export class UsersController {
    * 인증 후 비밀번호 재설정 (API_206)
    */
   @Patch('/pasword-reset')
-  async resetPassword() {
-    this.usersService.resetPassword();
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    await this.usersService.resetPassword(resetPasswordDto);
+    return {
+      status: 200,
+    };
   }
 
   // @Patch(':id')
