@@ -1,4 +1,4 @@
-export class CreateRestroomDto {
+export class CreatePlaceDto {
   name: string;
   addr: string;
   lat: number;

@@ -3,9 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn, ManyToOne, JoinColumn,
+  UpdateDateColumn, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
 import { Membership } from '../../membership/entities/membership.entity';
+import { Like } from '../../likes/entities/like.entity';
 
 @Entity()
 export class User {
@@ -39,4 +40,7 @@ export class User {
   @ManyToOne(() => Membership, { nullable: true })
   @JoinColumn({ name: 'membership_id' })
   membership: Membership;
+
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[];
 }

@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 
-import { RestroomsModule } from './restrooms/restrooms.module';
+import { PlacesModule } from './places/places.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
@@ -12,6 +12,8 @@ import { RedisClientModuleModule } from './redis-client-module/redis-client-modu
 import { CoolsmsModule } from './coolsms/coolsms.module';
 import { GmailSmtpService } from './gmail-smtp/gmail-smtp.service';
 import { GmailSmtpModule } from './gmail-smtp/gmail-smtp.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [
@@ -21,14 +23,17 @@ import { GmailSmtpModule } from './gmail-smtp/gmail-smtp.module';
     }),
     RedisClientModuleModule,
     DatabaseModule,
-    RestroomsModule,
-    MembershipModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
+    MembershipModule,
+    PlacesModule,
+    ReviewsModule,
     CoolsmsModule,
     GmailSmtpModule,
+    LikesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, GmailSmtpService],
+  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+}
