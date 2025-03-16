@@ -50,4 +50,11 @@ export class Place {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ default: 0 })
+  likeCount: number;
+
+  @Column({ default: 0 })
+  ratingAverage: number;
+
 }
