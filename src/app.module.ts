@@ -10,6 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { MembershipModule } from './membership/membership.module';
 import { RedisClientModuleModule } from './redis-client-module/redis-client-module.module';
 import { CoolsmsModule } from './coolsms/coolsms.module';
+import { GmailSmtpService } from './gmail-smtp/gmail-smtp.service';
+import { GmailSmtpModule } from './gmail-smtp/gmail-smtp.module';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { CoolsmsModule } from './coolsms/coolsms.module';
     UsersModule,
     AuthModule,
     CoolsmsModule,
+    GmailSmtpModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GmailSmtpService],
 })
 export class AppModule {}
