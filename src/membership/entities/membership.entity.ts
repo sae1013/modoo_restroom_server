@@ -16,7 +16,7 @@ export class Membership {
     enum: MembershipTierEnum,
     unique: true,
   })
-  name: string;
+  name: MembershipTierEnum;
 
   @Column({ type: 'text', nullable: true })
   benefits: string; // 등급별 혜택 설명
