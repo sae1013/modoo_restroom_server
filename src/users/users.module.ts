@@ -11,7 +11,4 @@ import { GmailSmtpModule } from '../gmail-smtp/gmail-smtp.module';
   controllers: [UsersController],
   providers: [UsersService],
 })
-export class UsersModule {
-}
-
-
+export class UsersModule {}

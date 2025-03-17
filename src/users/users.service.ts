@@ -1,5 +1,16 @@
-import { BadRequestException, Body, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateUserDto, FindUserByEmailDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
+import {
+  BadRequestException,
+  Body,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  CreateUserDto,
+  FindUserByEmailDto,
+  LoginUserDto,
+  UpdateUserDto,
+} from './dto/user-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -24,8 +35,7 @@ export class UsersService {
     @Inject(GmailSmtpService) private gmailSmtpService: GmailSmtpService,
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
-  ) {
-  }
+  ) {}
 
   async create(newUser: CreateUserDto) {
     const duplicatedUser = await this.userRepository
@@ -62,7 +72,11 @@ export class UsersService {
     const { email, name, nickname, phoneNumber } = insertResult.raw[0];
 
     return {
-      email, name, nickname, phoneNumber, membership: { name: freeMembership?.name },
+      email,
+      name,
+      nickname,
+      phoneNumber,
+      membership: { name: freeMembership?.name },
     };
   }
 
@@ -89,7 +103,9 @@ export class UsersService {
     return result;
   }
 
-  async requestPasswordResetVerificationCode({ email }: RequestPasswordResetVerificationCodeDto) {
+  async requestPasswordResetVerificationCode({
+    email,
+  }: RequestPasswordResetVerificationCodeDto) {
     await this.getUserProfileByEmail(email);
     const redisAuthCodeKey = `passwordReset:authCode:${email}`;
     const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
@@ -98,13 +114,19 @@ export class UsersService {
     }
 
     const verificationCode = generateVerificationCode();
-    const mailSubject = '[해우소] 비밀번호 재설정을 위한 인증코드를 발급해드립니다.';
+    const mailSubject =
+      '[해우소] 비밀번호 재설정을 위한 인증코드를 발급해드립니다.';
     const mailText = `[해우소] 비밀번호 재설정을 위한 인증코드를 발급해드립니다. 인증코드: ${verificationCode}, 10분이내 인증코드를 입력해주세요`;
     const mailHtml = `<h1>[해우소] 비밀번호 재설정을 위한 인증코드를 발급해드립니다.</h1> 
     <h3>인증코드: ${verificationCode}</h3>
     <p>10분 이내에 인증코드를 입력해주세요.</p>`;
 
-    await this.gmailSmtpService.sendMail(email, mailSubject, mailText, mailHtml);
+    await this.gmailSmtpService.sendMail(
+      email,
+      mailSubject,
+      mailText,
+      mailHtml,
+    );
     await this.redisClient.set(redisAuthCodeKey, verificationCode, {
       EX: 60 * 80,
     });
@@ -171,7 +193,5 @@ export class UsersService {
   // }
 
   // 유저정보를 토큰에서 빼온다음...
-  remove() {
-
-  }
+  remove() {}
 }

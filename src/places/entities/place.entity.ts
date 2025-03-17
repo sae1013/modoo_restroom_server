@@ -3,13 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn, OneToMany,
+  UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Review } from '../../reviews/entities/review.entity';
 
 export enum PlaceTypeEnum {
   PRIVATE = 'PRIVATE',
-  PUBLIC = 'PUBLIC'
+  PUBLIC = 'PUBLIC',
 }
 
 @Entity()
@@ -56,5 +57,4 @@ export class Place {
 
   @Column({ default: 0 })
   ratingAverage: number;
-
 }

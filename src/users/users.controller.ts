@@ -19,8 +19,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   /**
    * 회원가입 API_201
@@ -65,8 +64,13 @@ export class UsersController {
    * 비밀번호 재설정 요청 생성 API_204
    */
   @Post('/password-reset')
-  async requestPasswordResetVerificationCode(@Body() requestPasswordResetVerificationCodeDto: RequestPasswordResetVerificationCodeDto) {
-    await this.usersService.requestPasswordResetVerificationCode(requestPasswordResetVerificationCodeDto);
+  async requestPasswordResetVerificationCode(
+    @Body()
+    requestPasswordResetVerificationCodeDto: RequestPasswordResetVerificationCodeDto,
+  ) {
+    await this.usersService.requestPasswordResetVerificationCode(
+      requestPasswordResetVerificationCodeDto,
+    );
     return {
       status: 200,
     };
@@ -77,7 +81,9 @@ export class UsersController {
    * 비밀번호 재설정 인증코드 검증 API_205
    */
   @Post('/password-reset/verify-code')
-  async passwordResetVerifyCode(@Body() verifyPasswordResetDto: VerifyPasswordResetDto) {
+  async passwordResetVerifyCode(
+    @Body() verifyPasswordResetDto: VerifyPasswordResetDto,
+  ) {
     await this.usersService.passwordResetVerifyCode(verifyPasswordResetDto);
     return {
       status: 200,
@@ -100,5 +106,4 @@ export class UsersController {
   // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
   //   return this.usersService.update(+id, updateUserDto);
   // }
-
 }

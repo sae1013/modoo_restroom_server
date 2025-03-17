@@ -1,12 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
-
+import { RedisClientType } from 'redis';
+import { DataSource } from 'typeorm';
 @Injectable()
 export class LikesService {
-  create(createLikeDto: CreateLikeDto) {
-    return 'This action adds a new like';
+  constructor(
+    @Inject('REDIS_CLIENT') redisClient: RedisClientType,
+    private dataSource: DataSource,
+  ) {}
+
+  async like({ likeableId, likeableType }: CreateLikeDto) {
+    // 꺼내서 확인한다.
+    // TODO: 좋아요 카운트를 증가시킨다.x
+    const qr = this.dataSource.createQueryRunner();
   }
+
+  async dislike({ userEmail, likeableId, likeableType }: CreateLikeDto) {}
 
   findAll() {
     return `This action returns all likes`;
