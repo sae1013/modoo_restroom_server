@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Membership } from '../../membership/entities/membership.entity';
 import { Like } from '../../likes/entities/like.entity';
+import { Review } from '../../reviews/entities/review.entity';
 
 @Entity()
 export class User {
@@ -39,6 +40,9 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
 
   @ManyToOne(() => Membership, { nullable: true })
   @JoinColumn({ name: 'membership_id' })

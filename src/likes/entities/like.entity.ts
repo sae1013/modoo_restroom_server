@@ -11,7 +11,7 @@ import { User } from '../../users/entities/user.entity';
 
 export enum LikeableType {
   PLACE = 'PLACE',
-  COMMENT = 'COMMENT',
+  REVIEW = 'REVIEW',
 }
 
 @Entity()
@@ -37,6 +37,10 @@ export class Like {
     unique: true,
   })
   likeableType: LikeableType;
+
+  // 0: 비활성화, 1: 활성화
+  @Column()
+  flag: number;
 
   @CreateDateColumn()
   createdAt: Date;

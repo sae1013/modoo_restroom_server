@@ -5,7 +5,7 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  Delete, Req,
 } from '@nestjs/common';
 import { LikesService } from './likes.service';
 import { CreateLikeDto } from './dto/create-like.dto';
@@ -13,11 +13,12 @@ import { UpdateLikeDto } from './dto/update-like.dto';
 
 @Controller('likes')
 export class LikesController {
-  constructor(private readonly likesService: LikesService) {}
+  constructor(private readonly likesService: LikesService) {
+  }
 
   @Post()
-  create(@Body() createLikeDto: CreateLikeDto) {
-    return this.likesService.create(createLikeDto);
+  create(@Body() createLikeDto: CreateLikeDto, @Req() req) {
+    return this.likesService.like(req.user, createLikeDto);
   }
 
   @Get()

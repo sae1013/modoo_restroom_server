@@ -1,18 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateLikeDto {
   @ApiProperty({
-    description: '좋아요 대상의 id',
-    example: '1',
+    description: '좋아요 대상의 id(PK)',
+    example: 1,
   })
   @IsString()
-  likeableId: string;
+  likeableId: number;
 
   @ApiProperty({
-    description: '좋아요 대상 타입 / 장소, 댓글 (PLACE, COMMENT)',
+    description: '좋아요 대상 타입 / 장소, 후기 (PLACE, REVIEW)',
     example: 'PLACE',
   })
   @IsString()
   likeableType: 'PLACE';
+
+@ApiProperty({
+  description: '좋아요(1), 싫어요(0) 구분',
+  example: 1,
+})
+
 }
