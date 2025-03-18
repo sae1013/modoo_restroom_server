@@ -13,7 +13,6 @@ export class LikesService {
   constructor(
     @Inject('REDIS_CLIENT') redisClient: RedisClientType,
     private dataSource: DataSource,
-
     @InjectRepository(Like)
     private readonly likeRepository: Repository<Like>,
   ) {}

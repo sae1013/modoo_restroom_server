@@ -3,17 +3,21 @@ import {
   Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   Req,
   UseGuards,
   Query,
 } from '@nestjs/common';
 import { LikesService } from './likes.service';
 import { CreateLikeDto } from './dto/create-like.dto';
-import { UpdateLikeDto } from './dto/update-like.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.auth.guard';
+import { Request } from 'express';
+
+export interface RequestWithUser extends Request {
+  user: {
+    email: string;
+    // 필요에 따라 추가 필드를 정의할 수 있습니다.
+  };
+}
 
 @Controller('likes')
 export class LikesController {
@@ -21,14 +25,17 @@ export class LikesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createLikeDto: CreateLikeDto, @Req() req) {
+  create(@Body() createLikeDto: CreateLikeDto, @Req() req: Request) {
     return this.likesService.toggleLikePlace(req.user, createLikeDto);
   }
 
   @Get()
-  findAllLikeByUser(@Req() req, @Query() query: Record<string, any>) {
+  findAllLikeByUser(
+    @Req() req: RequestWithUser,
+    @Query() query: Record<string, any>,
+  ) {
     return this.likesService.findAllByLikeableType(
-      req.user.email,
+      req.user.email || '',
       query?.likeableType,
     );
   }
@@ -42,9 +49,4 @@ export class LikesController {
   // update(@Param('id') id: string, @Body() updateLikeDto: UpdateLikeDto) {
   //   return this.likesService.update(+id, updateLikeDto);
   // }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.likesService.remove(+id);
-  }
 }

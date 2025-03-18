@@ -34,7 +34,7 @@ export class UsersController {
    */
   @UseGuards(JwtAuthGuard)
   @Delete()
-  async remove() {
+  remove() {
     this.usersService.remove();
     return {
       status: 200,
