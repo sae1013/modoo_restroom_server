@@ -16,9 +16,9 @@ export class CreateLikeDto {
   @IsString()
   likeableType: 'PLACE';
 
-@ApiProperty({
-  description: '좋아요(1), 싫어요(0) 구분',
-  example: 1,
-})
-
+  @ApiProperty({
+    description: '좋아요(1), 싫어요(0) 구분',
+    example: 1,
+  })
+  flag: 1;
 }
