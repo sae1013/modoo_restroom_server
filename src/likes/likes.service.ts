@@ -2,7 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
 import { RedisClientType } from 'redis';
-import { DataSource, Like, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Like } from './entities/like.entity';
 import { Place } from '../places/entities/place.entity';
 import { Review } from '../reviews/entities/review.entity';
 import { LikeableType } from './entities/like.entity';
@@ -15,7 +16,8 @@ export class LikesService {
     private dataSource: DataSource,
     @InjectRepository(Like)
     private readonly likeRepository: Repository<Like>,
-  ) {}
+  ) {
+  }
 
   async toggleLikePlace(
     user,
@@ -32,14 +34,14 @@ export class LikesService {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const upsertResult = await queryRunner.query(
         `
-        INSERT INTO "like" ("userId", "likeableId", "likeableType", "flag", "createdAt")
-        VALUES ($1, $2, $3, 1, NOW())
-        ON CONFLICT ("userId", "likeableId", "likeableType")
-        DO UPDATE SET "flag" = CASE WHEN "like"."flag" = 1 THEN 0 ELSE 1 END,
-                          "createdAt" = NOW()
-        RETURNING "flag"
+            INSERT INTO "like" ("userId", "likeableId", "likeableType", "flag", "createdAt")
+            VALUES ($1, $2, $3, 1, NOW()) ON CONFLICT ("userId", "likeableId", "likeableType")
+        DO
+            UPDATE SET "flag" = CASE WHEN "like"."flag" = 1 THEN 0 ELSE 1 END,
+                "createdAt" = NOW()
+                RETURNING "flag"
         `,
-        [user.id, placeId, LikeableType.PLACE],
+        [user.id, likeableId, likeableType],
       );
 
       // upsertResult[0].flag가 새롭게 설정된 flag 값입니다.
@@ -50,11 +52,11 @@ export class LikesService {
       // Place의 likeCount 업데이트
       await queryRunner.query(
         `
-        UPDATE "place"
-        SET "likeCount" = "likeCount" + $1
-        WHERE "id" = $2
+            UPDATE "place"
+            SET "likeCount" = "likeCount" + $1
+            WHERE "id" = $2
         `,
-        [delta, placeId],
+        [delta, likeableId],
       );
 
       await queryRunner.commitTransaction();
