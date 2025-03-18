@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgresdb
+  postgis:
+    image: postgis/postgis:17-3.5
+    container_name: postgis
+    platform: linux/amd64
     ports:
       - "5432:5432"
     environment:

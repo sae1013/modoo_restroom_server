@@ -10,5 +10,7 @@ import { GmailSmtpModule } from '../gmail-smtp/gmail-smtp.module';
   imports: [TypeOrmModule.forFeature([User, Membership]), GmailSmtpModule],
   controllers: [UsersController],
   providers: [UsersService],
+  exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule {
+}
