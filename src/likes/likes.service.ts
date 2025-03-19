@@ -16,8 +16,7 @@ export class LikesService {
     private dataSource: DataSource,
     @InjectRepository(Like)
     private readonly likeRepository: Repository<Like>,
-  ) {
-  }
+  ) {}
 
   async toggleLikePlace(
     user,
@@ -39,7 +38,7 @@ export class LikesService {
         DO
             UPDATE SET "flag" = CASE WHEN "like"."flag" = 1 THEN 0 ELSE 1 END,
                 "createdAt" = NOW()
-                RETURNING "flag"
+                RETURNING "flag" , "likeableType"
         `,
         [user.id, likeableId, likeableType],
       );
@@ -47,17 +46,26 @@ export class LikesService {
       // upsertResult[0].flag가 새롭게 설정된 flag 값입니다.
       // delta 계산: flag가 1이면 좋아요 활성화이므로 카운트 +1, 0이면 좋아요 취소이므로 카운트 -1
       const newFlag = upsertResult[0].flag;
+      const updatedLikeableType = upsertResult[0].likeableType;
       const delta = newFlag === 1 ? 1 : -1;
 
-      // Place의 likeCount 업데이트
-      await queryRunner.query(
-        `
-            UPDATE "place"
-            SET "likeCount" = "likeCount" + $1
-            WHERE "id" = $2
-        `,
-        [delta, likeableId],
-      );
+      let updateCountQuery = '';
+      if (updatedLikeableType === LikeableType.PLACE) {
+        updateCountQuery = `
+          UPDATE "place"
+          SET "likeCount" = "likeCount" + $1
+          WHERE "id" = $2
+        `;
+      } else if (updatedLikeableType === LikeableType.REVIEW) {
+        updateCountQuery = `
+          UPDATE "review"
+          SET "likeCount" = "likeCount" + $1
+          WHERE "id" = $2
+        `;
+      } else {
+        throw new Error('등록되지않은 likeableType 입니다.');
+      }
+      await queryRunner.query(updateCountQuery, [delta, likeableId]);
 
       await queryRunner.commitTransaction();
     } catch (error) {
