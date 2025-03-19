@@ -12,20 +12,25 @@ import { UsersModule } from '../users/users.module';
 import { UsersService } from '../users/users.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), UsersModule, PassportModule, CoolsmsModule, JwtModule.registerAsync({
-    // ConfigService를 DI로 주입
-    inject: [ConfigService],
-    useFactory: (configService: ConfigService) => ({
-      secret: configService.get<string>('JWT_SECRET'),
-      signOptions: {
-        // expiresIn: 3시간 (문자열 '3h' 또는 초 단위 10800 권장)
-        expiresIn: '3h',
-      },
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    UsersModule,
+    PassportModule,
+    CoolsmsModule,
+    JwtModule.registerAsync({
+      // ConfigService를 DI로 주입
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          // expiresIn: 3시간 (문자열 '3h' 또는 초 단위 10800 권장)
+          expiresIn: '576h',
+        },
+      }),
     }),
-  })],
+  ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
   exports: [AuthService],
 })
-export class AuthModule {
-}
+export class AuthModule {}

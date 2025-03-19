@@ -26,8 +26,7 @@ export class AuthService {
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
     @Inject(CoolsmsService) private coolsmsService: CoolsmsService,
-  ) {
-  }
+  ) {}
 
   async validateUser(email: string, password: string) {
     const user = await this.userRepository
@@ -87,6 +86,4 @@ export class AuthService {
     await this.redisClient.del(redisKey);
     return;
   }
-
-
 }

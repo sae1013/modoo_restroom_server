@@ -8,7 +8,6 @@ import {
 import {
   CreateUserDto,
   FindUserByEmailDto,
-  LoginUserDto,
   UpdateUserDto,
 } from './dto/user-dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,8 +34,7 @@ export class UsersService {
     @Inject(GmailSmtpService) private gmailSmtpService: GmailSmtpService,
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
-  ) {
-  }
+  ) {}
 
   async create(newUser: CreateUserDto) {
     const duplicatedUser = await this.userRepository
@@ -105,8 +103,8 @@ export class UsersService {
   }
 
   async requestPasswordResetVerificationCode({
-                                               email,
-                                             }: RequestPasswordResetVerificationCodeDto) {
+    email,
+  }: RequestPasswordResetVerificationCodeDto) {
     await this.getUserProfileByEmail(email);
     const redisAuthCodeKey = `passwordReset:authCode:${email}`;
     const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
@@ -188,7 +186,6 @@ export class UsersService {
       .orderBy('user.createdAt', 'DESC')
       .getMany();
     return users;
-
   }
 
   // findOne(userInfo: FindUserByEmailDto) {
@@ -200,6 +197,5 @@ export class UsersService {
   // }
 
   // 유저정보를 토큰에서 빼온다음...
-  remove() {
-  }
+  remove() {}
 }

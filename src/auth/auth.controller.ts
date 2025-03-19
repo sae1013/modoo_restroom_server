@@ -14,16 +14,26 @@ import { JwtAuthGuard } from './guards/jwt.auth.guard';
 import { User } from '../users/entities/user.entity';
 import { RequestAuthCodeDto } from './dto/request-auth-code.dto';
 import { AuthenticateSmsDto } from './dto/authenticate-sms.dto';
+import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-  }
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * 사용자 로그인 API_101
    */
   @Post('login')
+  @ApiBody({
+    description: '사용자 로그인 요청 데이터',
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'admin@gmail.com' },
+        password: { type: 'string', example: 'qweqrdf1234124' },
+      },
+    },
+  })
   async login(
     @Body()
     body: {
@@ -56,8 +66,7 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('logout')
-  logout() {
-  }
+  logout() {}
 
   /**
    * SMS 인증번호 요청 API_103

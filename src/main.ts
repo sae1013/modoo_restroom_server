@@ -5,12 +5,15 @@ import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   app.use(cookieParser());
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001'],
+    origin: [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
+    ],
     credentials: true, // 클라이언트와 서버 간 쿠키 전송 허용
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Accept, Authorization',
@@ -21,7 +24,15 @@ async function bootstrap() {
     .setTitle('해우소 백엔드')
     .setDescription('Nest JS Swagger API Doc')
     .setVersion('1.0')
-    .addBearerAuth()
+    // 커스텀 JWT 토큰 apiKey 스키마 추가
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'access_token',
+        in: 'cookie',
+      },
+      'access_token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

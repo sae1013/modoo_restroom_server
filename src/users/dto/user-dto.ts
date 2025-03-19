@@ -34,7 +34,7 @@ export class LoginUserDto {
   readonly email: string;
 
   @ApiProperty({
-    example: 'qweqrdf1234124',
+    example: 'Sae12341!',
   })
   readonly password: string;
 }
