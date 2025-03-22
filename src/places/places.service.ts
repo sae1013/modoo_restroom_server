@@ -14,11 +14,17 @@ export class PlacesService {
   }
 
   async create({ name, lat, lng, roadAddr, type }: CreatePlaceDto) {
+
+    const geoJson = JSON.stringify({
+      type: 'Point',
+      coordinates: [lng, lat], // PostGIS에서는 일반적으로 [경도, 위도] 순서입니다.
+    });
+
     const result = await this.placeRepository
       .createQueryBuilder()
       .insert()
       .into(Place)
-      .values({ name, lat, lng, roadAddr, type })
+      .values({ name, lat, lng, location: () => `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`, roadAddr, type })
       .returning('*')
       .execute();
 
@@ -53,6 +59,55 @@ export class PlacesService {
     return places;
 
   }
+
+  /**
+   * 남서(SW)와 북동(NE) 좌표로 정의된 바운딩 박스 내의 장소들을 조회합니다.
+   * @param sw_lat - 남서쪽 위도
+   * @param sw_lng - 남서쪽 경도
+   * @param ne_lat - 북동쪽 위도
+   * @param ne_lng - 북동쪽 경도
+   */
+  async findPlacesWithinBoundingBox(sw_lat, sw_lng, ne_lat, ne_lng) {
+    console.log(sw_lat, sw_lng, ne_lat, ne_lng);
+    return await this.placeRepository
+      .createQueryBuilder('place')
+      .where(
+        `ST_Within(
+          place.location,
+          ST_MakeEnvelope(:sw_lng, :sw_lat, :ne_lng, :ne_lat, 4326)
+        )`,
+        { sw_lng, sw_lat, ne_lng, ne_lat },
+      )
+      .getMany();
+  }
+
+  /**
+   *
+   * @param lat
+   * @param lng
+   * @param radius 단위:meter
+   */
+  async findPlacesWithinRadius(lat: number, lng: number, radius: number = 5000): Promise<Place[]> {
+    return await this.placeRepository
+      .createQueryBuilder('place')
+      .where(
+        `ST_DWithin(
+        place.location::geography,
+        ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
+        :radius
+      )`,
+        { lat, lng, radius },
+      )
+      .orderBy(
+        `ST_Distance(
+        place.location::geography,
+        ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography
+      )`,
+        'ASC',
+      )
+      .getMany();
+  }
+
 
   async removePlaceById(id: number) {
     const result = await this.placeRepository

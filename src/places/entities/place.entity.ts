@@ -28,11 +28,18 @@ export class Place {
   @Column({
     type: 'enum',
     enum: PlaceTypeEnum,
-    unique: true,
     default: PlaceTypeEnum.PRIVATE,
     nullable: true,
   })
   type: PlaceTypeEnum;
+
+  @Column({
+    type: 'geometry',
+    spatialFeatureType: 'Point',
+    srid: 4326,
+    nullable: true,
+  })
+  location: any; // 실제로는 GeoJSON 객체나 문자열을 저장할 수 있습니다.
 
   // 위도
   @Column({ type: 'double precision' })

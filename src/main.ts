@@ -36,7 +36,25 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('v1/swagger', app, document);
+
+  const customOptions = {
+    swaggerOptions: {
+      authAction: {
+        'access_token': {
+          name: 'access_token',
+          schema: {
+            type: 'apiKey',
+            in: 'cookie',
+            name: 'access_token',
+          },
+          // 여기에 원하는 기본 토큰 값을 지정합니다.
+          value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQyNTcxNzA1LCJleHAiOjE3NDQ2NDUzMDV9.pHHwj4U3oZEQCoQ9SkaFlxfbGBDtWhgdgKoG1H69zO0',
+        },
+      },
+    },
+  };
+
+  SwaggerModule.setup('v1/swagger', app, document, customOptions);
 
   await app.listen(configService.get('WAS_PORT') ?? 8001);
 }

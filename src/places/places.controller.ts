@@ -9,6 +9,7 @@ import {
 import { PlacesService } from './places.service';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { FindPlaceByParamDto } from './dto/findPlaceByParam.dto';
+import { FindPlaceByGeolocationDto } from './dto/FindPlaceByGeolocation.dto';
 
 @Controller('places')
 export class PlacesController {
@@ -26,6 +27,16 @@ export class PlacesController {
       return this.placesService.findAll();
     }
     return this.placesService.findPlacesByQuery(query);
+  }
+
+  @Get('geolocation')
+  async findPlacesByGeolocation(@Query() { sw_lat, sw_lng, ne_lat, ne_lng }: FindPlaceByGeolocationDto) {
+    return this.placesService.findPlacesWithinBoundingBox(sw_lat, sw_lng, ne_lat, ne_lng);
+  }
+
+  @Get('nearby')
+  async findPlacesByNearBy(@Query() { lat, lng, radius }) {
+    return this.placesService.findPlacesWithinRadius(lat, lng, radius);
   }
 
   @Get(':id')
