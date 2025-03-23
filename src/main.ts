@@ -13,6 +13,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
+      'http://192.168.219.118:3000',
+      'http://192.168.219.118:8081',
     ],
     credentials: true, // 클라이언트와 서버 간 쿠키 전송 허용
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
