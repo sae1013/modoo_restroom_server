@@ -18,7 +18,8 @@ import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {
+  }
 
   /**
    * 사용자 로그인 API_101
@@ -50,12 +51,12 @@ export class AuthController {
       );
       const token = await this.authService.login(user);
       res.cookie('access_token', token, {
-        httpOnly: true,
+        httpOnly: false,
         maxAge: 24 * 60 * 60 * 1000,
         secure: false,
         sameSite: 'lax',
       });
-      return { message: '로그인 성공' };
+      return { result: 'OK', mesasge: '로그인 성공', code: 200 };
     } catch (error) {
       throw new UnauthorizedException('로그인 실패');
     }
@@ -66,7 +67,8 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('logout')
-  logout() {}
+  logout() {
+  }
 
   /**
    * SMS 인증번호 요청 API_103

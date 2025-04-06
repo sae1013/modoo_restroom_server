@@ -11,6 +11,10 @@ export class CreatePlaceDto {
   @IsString()
   roadAddr: string;
 
+  @ApiProperty({ example: '서울특별시 용산구 남산공원길 105', description: '지번주소' })
+  @IsString()
+  jibunAddr: string;
+
   @ApiPropertyOptional({
     example: PlaceTypeEnum.PRIVATE,
     enum: PlaceTypeEnum,

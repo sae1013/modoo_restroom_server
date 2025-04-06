@@ -25,6 +25,9 @@ export class Place {
   @Column()
   roadAddr: string;
 
+  @Column()
+  jibunAddr: string;
+
   @Column({
     type: 'enum',
     enum: PlaceTypeEnum,

@@ -1,9 +1,25 @@
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateReviewDto {
+export class CreateReviewWithPlaceDto {
 
   @IsNumber()
   placeId: number;
+
+  // 지번 혹은 도로명 주소
+  @IsString()
+  name: string;
+
+  @IsString()
+  roadAddress;
+
+  @IsString()
+  jibunAddress;
+
+  @IsNumber()
+  lat;
+
+  @IsNumber()
+  lng;
 
   // 건물의 정보들이 추가됨.
   @IsNumber()

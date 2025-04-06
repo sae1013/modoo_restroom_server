@@ -13,7 +13,7 @@ export class PlacesService {
   ) {
   }
 
-  async create({ name, lat, lng, roadAddr, type }: CreatePlaceDto) {
+  async create({ name, lat, lng, roadAddr, jibunAddr, type }: CreatePlaceDto) {
 
     const geoJson = JSON.stringify({
       type: 'Point',
@@ -24,7 +24,15 @@ export class PlacesService {
       .createQueryBuilder()
       .insert()
       .into(Place)
-      .values({ name, lat, lng, location: () => `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`, roadAddr, type })
+      .values({
+        name,
+        lat,
+        lng,
+        location: () => `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`,
+        roadAddr,
+        jibunAddr,
+        type,
+      })
       .returning('*')
       .execute();
 
@@ -34,7 +42,7 @@ export class PlacesService {
   async findAll() {
     return await this.placeRepository
       .createQueryBuilder('place')
-      .select(['place.id', 'place.name', 'place.lat', 'place.lng', 'place.roadAddr', 'place.type'])
+      .select(['place.id', 'place.name', 'place.lat', 'place.lng', 'place.roadAddr', 'place.jibunAddr', 'place.type'])
       .getMany();
   }
 

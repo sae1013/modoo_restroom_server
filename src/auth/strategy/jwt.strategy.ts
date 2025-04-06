@@ -5,13 +5,14 @@ import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { UsersService } from 'src/users/users.service';
 
-// 커스텀 토큰 추출 함수: 쿠키에서 access_token 키를 사용해 JWT를 추출
+// 커스텀 토큰 추출 함수: 베어러 access_token 키를 사용해 JWT를 추출
 const cookieExtractor = (req: Request): string | null => {
-  let token = null;
-  if (req && req.cookies) {
-    token = req.cookies['access_token'];
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new UnauthorizedException(401);
   }
-  return token;
+  const accessToken = authHeader.split(' ')[1];
+  return accessToken;
 };
 
 @Injectable()
