@@ -67,7 +67,10 @@ export class AuthController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('logout')
-  logout() {
+  logout(@Req() req) {
+    const authHeader = req.headers.authorization;
+    const accessToken = authHeader.split(' ')[1];
+    return this.authService.logout(accessToken);
   }
 
   /**

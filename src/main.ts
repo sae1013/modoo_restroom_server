@@ -27,31 +27,38 @@ async function bootstrap() {
     .setDescription('Nest JS Swagger API Doc')
     .setVersion('1.0')
     // 커스텀 JWT 토큰 apiKey 스키마 추가
-    .addApiKey(
+    .addBearerAuth(
       {
-        type: 'apiKey',
-        name: 'access_token',
-        in: 'cookie',
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
       },
-      'access_token',
+      'access-token',
     )
+
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
 
   const customOptions = {
+    persistAuthorization: true,
     swaggerOptions: {
       authAction: {
-        'access_token': {
-          name: 'access_token',
+        'access-token': {
+          name: 'access-token',
           schema: {
-            type: 'apiKey',
-            in: 'cookie',
-            name: 'access_token',
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
           },
-          // 여기에 원하는 기본 토큰 값을 지정합니다.
-          value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQyNTcxNzA1LCJleHAiOjE3NDQ2NDUzMDV9.pHHwj4U3oZEQCoQ9SkaFlxfbGBDtWhgdgKoG1H69zO0',
+          value: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NDM5NTAxOTAsImV4cCI6MTc0NjAyMzc5MH0.ba_3MtMuICgBnYmLmizWDMyeGag96x9u-ESYsU36a6I',
         },
+      },
+      requestInterceptor: (req) => {
+        if (!req.headers.Authorization) {
+          req.headers.Authorization = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoidGVzdEBnbWFpbC5jb20iLCJpYXQiOjE3NDM5NTAxOTAsImV4cCI6MTc0NjAyMzc5MH0.ba_3MtMuICgBnYmLmizWDMyeGag96x9u-ESYsU36a6I';
+        }
+        return req;
       },
     },
   };

@@ -26,7 +26,8 @@ export class AuthService {
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
     @Inject(CoolsmsService) private coolsmsService: CoolsmsService,
-  ) {}
+  ) {
+  }
 
   async validateUser(email: string, password: string) {
     const user = await this.userRepository
@@ -85,5 +86,16 @@ export class AuthService {
     // 성공시, 캐시를 날리고 200응답.
     await this.redisClient.del(redisKey);
     return;
+  }
+
+  async logout(accessToken) {
+    // TODO: REDIS에서 accessToken 삭제.
+    await this.redisClient.del(`user:session:${accessToken}`);
+    return {
+      code: 200,
+      results: 'success',
+      message: '로그아웃',
+    };
+
   }
 }
