@@ -1,15 +1,20 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+// @ts-ignore
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Place } from './entities/place.entity';
 import { FindPlaceByParamDto } from './dto/findPlaceByParam.dto';
+import { RedisClientType } from 'redis';
+
 
 @Injectable()
 export class PlacesService {
   constructor(
     @InjectRepository(Place)
     private readonly placeRepository: Repository<Place>,
+    @Inject('REDIS_CLIENT')
+    private redisClient: RedisClientType,
   ) {
   }
 
@@ -130,6 +135,53 @@ export class PlacesService {
     }
   }
 
+  // REDIS
+  async cacheAllPlaces() {
+    const geoKey = 'places';
+    const places = await this.placeRepository.find();
+    if (!places.length) {
+      console.log('No places found to cache.');
+      return;
+    }
+    const multi = this.redisClient.multi();
+
+    places.forEach((place) => {
+      // Redis GEOADD 명령어는 longitude, latitude, 그리고 멤버(member) 문자열을 저장합니다.
+      multi.geoAdd(geoKey, {
+        longitude: place.lng,
+        latitude: place.lat,
+        member: place.id.toString(),
+      });
+    });
+
+    const results = await multi.exec();
+    return { results: results, message: '장소:레디스 업로드 성공', code: 200 };
+  }
+
+  async getPlacesCache(query) {
+    const { latitude, longitude, radius } = query;
+    const geoKey = 'places';
+    // GEO 인덱스에 저장된 모든 멤버(Place id)를 ZRANGE로 가져옵니다.
+    if (!latitude || !longitude || !radius) {
+      const memberIds = await this.redisClient.zRange(geoKey, 0, -1);
+      // 각 멤버의 좌표를 조회합니다.
+      const positions = await this.redisClient.geoPos(geoKey, memberIds);
+      // 결과를 id와 좌표로 매핑합니다.
+      const places = memberIds.map((id, index) => ({
+        id,
+        position: positions[index], // positions[index]는 [longitude, latitude] 배열 형태
+      }));
+
+      return places;
+    }
+
+    const placeIds: string[] = await this.redisClient.geoSearch(
+      geoKey,                             // GEO 인덱스의 키 (예: "places")
+      { longitude, latitude },            // 기준 좌표 객체
+      { radius, unit: 'm' },
+    );
+    return placeIds;
+  }
 
   // update(id: number, updateRestroomDto: UpdatePlaceDto) {
   //   return `This action updates a #${id} restroom`;

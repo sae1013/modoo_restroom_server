@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Review } from './entities/review.entity';
 import { Place } from '../places/entities/place.entity';
 import { CreateReviewWithPlaceDto } from './dto/createReviewWithPlace.dto';
+import { RedisClientType } from 'redis';
 
 @Injectable()
 export class ReviewsService {
@@ -14,6 +15,8 @@ export class ReviewsService {
     @InjectRepository(Review)
     private reviewRepository: Repository<Review>,
     private readonly dataSource: DataSource,
+    @Inject('REDIS_CLIENT')
+    private redisClient: RedisClientType,
   ) {
   }
 
@@ -39,7 +42,7 @@ export class ReviewsService {
           user: { id: userId } as User,
         })
         .execute();
-      console.log('result:', result);
+
       return {
         result: {
           reviewId: result.identifiers[0].id,
@@ -140,4 +143,5 @@ export class ReviewsService {
   remove(id: number) {
     return `This action removes a #${id} review`;
   }
+
 }

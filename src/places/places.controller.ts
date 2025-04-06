@@ -10,6 +10,7 @@ import { PlacesService } from './places.service';
 import { CreatePlaceDto } from './dto/create-place.dto';
 import { FindPlaceByParamDto } from './dto/findPlaceByParam.dto';
 import { FindPlaceByGeolocationDto } from './dto/FindPlaceByGeolocation.dto';
+import { GetPlacesCacheDto } from '../reviews/dto/getPlacesCacheDto.dto';
 
 @Controller('places')
 export class PlacesController {
@@ -47,5 +48,15 @@ export class PlacesController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     this.placesService.removePlaceById(+id);
+  }
+
+  @Post('/redis/upload')
+  cachePlaces() {
+    return this.placesService.cacheAllPlaces();
+  }
+
+  @Get('/redis/get')
+  getPlacesCache(@Query() query: GetPlacesCacheDto) {
+    return this.placesService.getPlacesCache(query);
   }
 }
