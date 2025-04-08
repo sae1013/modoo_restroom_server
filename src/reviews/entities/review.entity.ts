@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Place } from '../../places/entities/place.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -42,5 +42,7 @@ export class Review {
   @Column({ default: false })
   option6: boolean;
 
+  @CreateDateColumn()
+  createAt: Date;
 
 }

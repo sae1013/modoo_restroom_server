@@ -27,8 +27,14 @@ export class ReviewsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reviewsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    console.log('path', id);
+    const { reviews, reviewCount, ratingAvg } = await this.reviewsService.findReviewsByPlaceId(+id);
+    return {
+      code: 200,
+      message: '댓글 조회성공',
+      result: { reviews, reviewCount, ratingAvg },
+    };
   }
 
   @Patch(':id')
@@ -36,6 +42,7 @@ export class ReviewsController {
     return this.reviewsService.update(+id, updateReviewDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(+id);

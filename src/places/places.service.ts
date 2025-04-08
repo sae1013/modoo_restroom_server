@@ -56,7 +56,6 @@ export class PlacesService {
       .createQueryBuilder('place')
       .where('place.id = :id', { id })
       .getOne();
-
   }
 
   async findPlacesByQuery(query: FindPlaceByParamDto) {
