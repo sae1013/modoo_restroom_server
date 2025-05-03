@@ -30,7 +30,7 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        email: { type: 'string', example: 'admin@gmail.com' },
+        email: { type: 'string', example: 'sae1013@gmail.com' },
         password: { type: 'string', example: 'qweqrdf1234124' },
       },
     },

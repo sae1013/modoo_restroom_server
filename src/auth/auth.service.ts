@@ -50,6 +50,7 @@ export class AuthService {
 
   async login(user: Omit<User, 'password'>) {
     const payload = { sub: user.id, email: user.email };
+    console.log('login payload', payload);
     return this.jwtService.sign(payload);
   }
 
