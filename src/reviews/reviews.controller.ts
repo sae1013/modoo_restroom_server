@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards, Query } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
@@ -21,20 +21,38 @@ export class ReviewsController {
     return this.reviewsService.createReviewWithPlace(createReviewWithPlace, req.user.id);
   }
 
-  @Get()
-  findAll() {
-    return this.reviewsService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.reviewsService.findAll();
+  // }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    console.log('path', id);
-    const { reviews, reviewCount, ratingAvg } = await this.reviewsService.findReviewsByPlaceId(+id);
-    return {
-      code: 200,
-      message: '댓글 조회성공',
-      result: { reviews, reviewCount, ratingAvg },
-    };
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  async findOne(@Query() query: any, @Req() req) {
+    console.log(query);
+    const { placeId } = query;
+    if (placeId) {
+      const {
+        reviews,
+        reviewCount,
+        ratingAvg,
+      } = await this.reviewsService.findReviewsByPlaceId(+placeId);
+      return {
+        code: 200,
+        message: '댓글 조회성공',
+        result: { reviews, reviewCount, ratingAvg },
+      };
+    } else {
+      const result = await this.reviewsService.findReviewsByUserId(req.user?.userId);
+
+      return {
+        code: 200,
+        message: '댓글 조회성공',
+        result,
+      };
+    }
+
+
   }
 
   @Patch(':id')

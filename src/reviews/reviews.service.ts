@@ -191,6 +191,15 @@ export class ReviewsService {
     };
   }
 
+  findReviewsByUserId(userId: number) {
+    return this.reviewRepository
+      .createQueryBuilder('review')
+      .leftJoinAndSelect('review.place', 'place')
+      .leftJoinAndSelect('review.user', 'user')
+      .where('user.id = :userId', { userId })
+      .getMany();
+  }
+
   update(id: number, updateReviewDto: UpdateReviewDto) {
     return `This action updates a #${id} review`;
   }
