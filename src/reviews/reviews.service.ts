@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -192,6 +192,7 @@ export class ReviewsService {
   }
 
   findReviewsByUserId(userId: number) {
+
     return this.reviewRepository
       .createQueryBuilder('review')
       .leftJoinAndSelect('review.place', 'place')
@@ -204,8 +205,16 @@ export class ReviewsService {
     return `This action updates a #${id} review`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} review`;
+  async remove(id: number) {
+    const result = await this.reviewRepository.delete(id);
+    if (!result.affected) {
+      throw new NotFoundException('리뷰삭제에 실패했습니다');
+    }
+    return {
+      result: { reviewId: id },
+      message: '리뷰 삭제 성공',
+      code: 200,
+    };
   }
 
 }

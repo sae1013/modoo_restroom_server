@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   Req,
-  UseGuards,
+  UseGuards, HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
@@ -102,6 +102,19 @@ export class UsersController {
       status: 200,
     };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/profile')
+  async getProfile(@Req() req) {
+    const userId = req.user.id;
+    const user = await this.usersService.getUserProfile(userId);
+    return {
+      result: user,
+      code: HttpStatus.OK,
+      message: '조회성공',
+
+    };
+  };
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

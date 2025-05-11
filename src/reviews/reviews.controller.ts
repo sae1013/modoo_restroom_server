@@ -29,7 +29,7 @@ export class ReviewsController {
   @UseGuards(JwtAuthGuard)
   @Get('')
   async findOne(@Query() query: any, @Req() req) {
-    console.log(query);
+    console.log('query', query);
     const { placeId } = query;
     if (placeId) {
       const {
@@ -43,7 +43,7 @@ export class ReviewsController {
         result: { reviews, reviewCount, ratingAvg },
       };
     } else {
-      const result = await this.reviewsService.findReviewsByUserId(req.user?.userId);
+      const result = await this.reviewsService.findReviewsByUserId(req.user?.id);
 
       return {
         code: 200,
@@ -61,8 +61,8 @@ export class ReviewsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete()
+  remove(@Body('id') id: string) {
     return this.reviewsService.remove(+id);
   }
 }

@@ -50,13 +50,16 @@ export class AuthController {
         body.password,
       );
       const token = await this.authService.login(user);
-      res.cookie('access_token', token, {
-        httpOnly: false,
-        maxAge: 24 * 60 * 60 * 1000,
-        secure: false,
-        sameSite: 'lax',
-      });
-      return { result: 'OK', mesasge: '로그인 성공', code: 200 };
+      /**
+       * 서버측에서 쿠키를 박아서 내려줄 경우 클라에서 읽을 수 없어서 요청 응답으로 변경
+       */
+      // res.cookie('access_token', token, {
+      //   httpOnly: false,
+      //   maxAge: 24 * 60 * 60 * 1000,
+      //   secure: false,
+      //   sameSite: 'lax',
+      // });
+      return { result: token, mesasge: '로그인 성공', code: 200 };
     } catch (error) {
       throw new UnauthorizedException('로그인 실패');
     }

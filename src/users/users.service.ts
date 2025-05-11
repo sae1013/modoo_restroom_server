@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Body,
   Inject,
-  Injectable,
+  Injectable, NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -187,6 +187,18 @@ export class UsersService {
       .orderBy('user.createdAt', 'DESC')
       .getMany();
     return users;
+  }
+
+  async getUserProfile(userId) {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.membership', 'membership')
+      .where('user.id = :userId', { userId })
+      .getOne();
+    if (!user) {
+      throw new NotFoundException();
+    }
+    return user;
   }
 
   // findOne(userInfo: FindUserByEmailDto) {
