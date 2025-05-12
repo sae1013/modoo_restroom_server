@@ -18,7 +18,8 @@ import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {
+  }
 
   /**
    * 사용자 로그인 API_101
@@ -90,7 +91,7 @@ export class AuthController {
   /**
    * SMS 핸드폰 번호인증(인증코드 확인) API_104
    */
-  @Post('/sms')
+  @Post('/sms/verify')
   async authenticateSms(@Body() authenticateSmsDto: AuthenticateSmsDto) {
     await this.authService.authenticateSmsCode(authenticateSmsDto);
     return { status: 200 };
