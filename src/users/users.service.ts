@@ -2,7 +2,8 @@ import {
   BadRequestException,
   Body,
   Inject,
-  Injectable, NotFoundException,
+  Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -34,8 +35,7 @@ export class UsersService {
     @Inject(GmailSmtpService) private gmailSmtpService: GmailSmtpService,
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
-  ) {
-  }
+  ) {}
 
   async create(newUser: CreateUserDto) {
     const duplicatedUser = await this.userRepository
@@ -104,8 +104,8 @@ export class UsersService {
   }
 
   async requestPasswordResetVerificationCode({
-                                               email,
-                                             }: RequestPasswordResetVerificationCodeDto) {
+    email,
+  }: RequestPasswordResetVerificationCodeDto) {
     await this.getUserProfileByEmail(email);
     const redisAuthCodeKey = `passwordReset:authCode:${email}`;
     const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
@@ -210,6 +210,15 @@ export class UsersService {
   // }
 
   // 유저정보를 토큰에서 빼온다음...
-  remove() {
+  async remove(userId: number) {
+    const updateResult = await this.userRepository.update(
+      {
+        id: userId,
+      },
+      { isActive: false },
+    );
+    if (!updateResult.affected) {
+      throw new NotFoundException('탈퇴에러');
+    }
   }
 }

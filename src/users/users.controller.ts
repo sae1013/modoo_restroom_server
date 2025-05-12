@@ -7,7 +7,8 @@ import {
   Param,
   Delete,
   Req,
-  UseGuards, HttpStatus,
+  UseGuards,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/user-dto';
@@ -19,8 +20,7 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {
-  }
+  constructor(private readonly usersService: UsersService) {}
 
   /**
    * 회원가입 API_201
@@ -35,10 +35,12 @@ export class UsersController {
    */
   @UseGuards(JwtAuthGuard)
   @Delete()
-  remove() {
-    this.usersService.remove();
+  remove(@Req() req: Request) {
+    this.usersService.remove(req.user?.id);
     return {
-      status: 200,
+      result: null,
+      message: '탈퇴성공',
+      status: HttpStatus.OK,
     };
   }
 
@@ -112,9 +114,8 @@ export class UsersController {
       result: user,
       code: HttpStatus.OK,
       message: '조회성공',
-
     };
-  };
+  }
 
   // @Patch(':id')
   // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
