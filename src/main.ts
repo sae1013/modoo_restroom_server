@@ -17,6 +17,7 @@ async function bootstrap() {
       'http://192.168.219.118:8081',
       'http://192.168.219.102:3000',
       'http://192.168.219.125:3000',
+      'http://172.23.243.9:3000',
     ],
     credentials: true, // 클라이언트와 서버 간 쿠키 전송 허용
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
@@ -46,19 +47,21 @@ async function bootstrap() {
     persistAuthorization: true,
     swaggerOptions: {
       authAction: {
-        'access_token': {
+        access_token: {
           name: 'access_token',
           schema: {
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'JWT',
           },
-          value: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoic2FlMTAxM0BnbWFpbC5jb20iLCJpYXQiOjE3NDYyNzY0NTksImV4cCI6MTc0ODM1MDA1OX0.RKdjp5eDz5GxD-aQo4TgJk5jKULoJjJ10UqnNcC9KHo',
+          value:
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoic2FlMTAxM0BnbWFpbC5jb20iLCJpYXQiOjE3NDYyNzY0NTksImV4cCI6MTc0ODM1MDA1OX0.RKdjp5eDz5GxD-aQo4TgJk5jKULoJjJ10UqnNcC9KHo',
         },
       },
       requestInterceptor: (req) => {
         if (!req.headers.Authorization) {
-          req.headers.Authorization = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoic2FlMTAxM0BnbWFpbC5jb20iLCJpYXQiOjE3NDYyNzY0NTksImV4cCI6MTc0ODM1MDA1OX0.RKdjp5eDz5GxD-aQo4TgJk5jKULoJjJ10UqnNcC9KHo';
+          req.headers.Authorization =
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoic2FlMTAxM0BnbWFpbC5jb20iLCJpYXQiOjE3NDYyNzY0NTksImV4cCI6MTc0ODM1MDA1OX0.RKdjp5eDz5GxD-aQo4TgJk5jKULoJjJ10UqnNcC9KHo';
         }
         return req;
       },

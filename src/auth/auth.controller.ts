@@ -18,8 +18,7 @@ import { ApiBody } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {
-  }
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * 사용자 로그인 API_101
@@ -49,6 +48,7 @@ export class AuthController {
         body.email,
         body.password,
       );
+      console.log('herer');
       const token = await this.authService.login(user);
       /**
        * 서버측에서 쿠키를 박아서 내려줄 경우 클라에서 읽을 수 없어서 요청 응답으로 변경
