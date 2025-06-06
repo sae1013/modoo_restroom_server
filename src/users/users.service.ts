@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  Body,
+  Body, HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -23,7 +23,7 @@ import { RequestPasswordResetVerificationCodeDto } from './dto/request-password-
 import { generateVerificationCode } from '../utils/utils';
 import { RedisClientType } from 'redis';
 import { VerifyPasswordResetDto } from './dto/verify-password-reset.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -35,7 +35,8 @@ export class UsersService {
     @Inject(GmailSmtpService) private gmailSmtpService: GmailSmtpService,
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
-  ) {}
+  ) {
+  }
 
   async create(newUser: CreateUserDto) {
     const duplicatedUser = await this.userRepository
@@ -103,9 +104,56 @@ export class UsersService {
     return result;
   }
 
+  // 이메일 인증코드 발송
+  async requestEmailAuthCode(email: string) {
+    const redisAuthCodeKey = `email:authCode:${email}`;
+    const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
+    if (redisAuthCode) {
+      throw new BadRequestException('이미 요청된 인증이 있습니다.');
+    }
+    const verificationCode = generateVerificationCode();
+    const mailSubject =
+      '[해우소] 이메일 인증 위한 인증코드를 발급해드립니다.';
+    const mailText = `[해우소] 이메일 인증 위한 인증코드를 발급해드립니다. 인증코드: ${verificationCode}, 10분이내 인증코드를 입력해주세요`;
+    const mailHtml = `<h1>[해우소] 이메일 인증을 위한 인증코드를 발급해드립니다.</h1> 
+    <h3>인증코드: ${verificationCode}</h3>
+    <p>10분 이내에 인증코드를 입력해주세요.</p>`;
+
+    await this.gmailSmtpService.sendMail(
+      email,
+      mailSubject,
+      mailText,
+      mailHtml,
+    );
+    await this.redisClient.set(redisAuthCodeKey, verificationCode, {
+      EX: 60 * 10,
+    });
+    return;
+  }
+
+  // 이메일 인증코드 인증
+  async verifyEmailAuthCode(email: string, code: string) {
+    const redisAuthCodeKey = `email:authCode:${email}`;
+    const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
+    await this.redisClient.del(redisAuthCodeKey);
+    if (code === redisAuthCode) {
+      // 인증성공
+      return {
+        code: HttpStatus.OK,
+        result: 200,
+      };
+
+    } else {
+      throw new BadRequestException({
+        code: HttpStatus.BAD_REQUEST,
+        message: '인증 코드가 유효하지 않습니다.',
+      });
+    }
+  }
+
   async requestPasswordResetVerificationCode({
-    email,
-  }: RequestPasswordResetVerificationCodeDto) {
+                                               email,
+                                             }: RequestPasswordResetVerificationCodeDto) {
     await this.getUserProfileByEmail(email);
     const redisAuthCodeKey = `passwordReset:authCode:${email}`;
     const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
@@ -128,7 +176,7 @@ export class UsersService {
       mailHtml,
     );
     await this.redisClient.set(redisAuthCodeKey, verificationCode, {
-      EX: 60 * 80,
+      EX: 60 * 10,
     });
     return;
   }
@@ -144,9 +192,8 @@ export class UsersService {
     }
   }
 
-  async resetPassword({ password, email, authCode }: ResetPasswordDto) {
-    await this.passwordResetVerifyCode({ email, authCode });
-
+  // 비밀번호 변경하기
+  async changePassword(email, password) {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .select(['user.email', 'user.password'])
@@ -154,7 +201,10 @@ export class UsersService {
       .getOne();
 
     if (!user) {
-      throw new BadRequestException('유저 정보를 가져오는데 실패했습니다.');
+      throw new BadRequestException({
+        message: '유저 정보를 가져오는데 실패했습니다.',
+        code: HttpStatus.BAD_REQUEST,
+      });
     }
     // 변경하려는 암호 평문, 해시암호를 비교
     const isMatch = await bcrypt.compare(password, user.password);
@@ -172,12 +222,16 @@ export class UsersService {
       .execute();
 
     if (updateResult.affected === 0) {
-      throw new BadRequestException('비밀번호 변경이 실패했습니다.');
+      throw new BadRequestException({
+        message: '비밀번호 변경이 실패했습니다.',
+        code: HttpStatus.BAD_REQUEST,
+      });
     }
 
-    // 비밀번호변경 성공 후 레디스 캐시삭제
-    const redisAuthCodeKey = `passwordReset:authCode:${email}`;
-    await this.redisClient.del(redisAuthCodeKey);
+    return {
+      code: HttpStatus.OK,
+      result: 200,
+    };
   }
 
   async findAll() {
@@ -209,7 +263,7 @@ export class UsersService {
   //   return `This action updates a #${id} user`;
   // }
 
-  // 유저정보를 토큰에서 빼온다음...
+  // 회원탈퇴
   async remove(userId: number) {
     const updateResult = await this.userRepository.update(
       {

@@ -16,11 +16,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import { Request, Response } from 'express';
 import { RequestPasswordResetVerificationCodeDto } from './dto/request-password-verification.dto';
 import { VerifyPasswordResetDto } from './dto/verify-password-reset.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { RequestEmailAuthCodeDto, VerifyEmailAuthCodeDto } from './dto/auth-dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {
+  }
 
   /**
    * 회원가입 API_201
@@ -59,50 +62,34 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  // 비밀번호 재설정 -> 본인의 이메일 주소 입력-> verifycode전송
-  // 인증번호 검증 -> 성공
-  // 비밀번호 생성
-
   /**
-   * 비밀번호 재설정 요청 생성 API_204
+   * 이메일 인증코드 발송
    */
-  @Post('/password-reset')
-  async requestPasswordResetVerificationCode(
-    @Body()
-    requestPasswordResetVerificationCodeDto: RequestPasswordResetVerificationCodeDto,
-  ) {
-    await this.usersService.requestPasswordResetVerificationCode(
-      requestPasswordResetVerificationCodeDto,
-    );
-    return {
-      status: 200,
-    };
+  @Post('/email/request-authcode')
+  async requestEmailAuthCode(@Body() { email }: RequestEmailAuthCodeDto) {
+    await this.usersService.requestEmailAuthCode(email);
   }
 
-  // DTO 필요.
-  /**
-   * 비밀번호 재설정 인증코드 검증 API_205
-   */
-  @Post('/password-reset/verify-code')
-  async passwordResetVerifyCode(
-    @Body() verifyPasswordResetDto: VerifyPasswordResetDto,
-  ) {
-    await this.usersService.passwordResetVerifyCode(verifyPasswordResetDto);
-    return {
-      status: 200,
-    };
+  @Post('/email/verify-authcode')
+  async verifyEmailAuthCode(@Body() { email, code }: VerifyEmailAuthCodeDto) {
+    return await this.usersService.verifyEmailAuthCode(email, code);
   }
 
-  // DTO 필요
   /**
-   * 인증 후 비밀번호 재설정 (API_206)
+   * 비밀번호 새로 설정하기(비로그인상태)
    */
-  @Patch('/pasword-reset')
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    await this.usersService.resetPassword(resetPasswordDto);
-    return {
-      status: 200,
-    };
+  @Patch('/reset/password')
+  async resetPassword(@Body() { email, password }: ResetPasswordDto) {
+    return await this.usersService.changePassword(email, password);
+  }
+
+  /**
+   * 비밀번호 변경하기.
+   */
+  @UseGuards(JwtAuthGuard)
+  @Patch('/change/password')
+  async changePassword(@Req() req, @Body() { password }: ChangePasswordDto) {
+    return await this.usersService.changePassword(req.user?.email, password);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -117,8 +104,5 @@ export class UsersController {
     };
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.usersService.update(+id, updateUserDto);
-  // }
+
 }

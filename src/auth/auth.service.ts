@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import axios from 'axios';
 import { JwtService } from '@nestjs/jwt';
 import { RedisClientType } from 'redis';
 import { RequestAuthCodeDto } from './dto/request-auth-code.dto';
@@ -32,13 +31,13 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.userRepository
       .createQueryBuilder('user')
+      .addSelect('user.password')
       .where('user.email = :email', { email })
       .getOne();
 
     if (!user) {
       throw new UnauthorizedException('가입하지 않은 계정입니다');
     }
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
