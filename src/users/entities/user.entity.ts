@@ -38,6 +38,9 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: '' })
+  gender: string;
+  
   @CreateDateColumn()
   createdAt: Date;
 

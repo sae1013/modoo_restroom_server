@@ -1,4 +1,4 @@
-import { HttpException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +14,8 @@ export class ReviewsService {
   constructor(
     @InjectRepository(Review)
     private reviewRepository: Repository<Review>,
+    @InjectRepository(Place)
+    private placeRepository: Repository<Place>,
     private readonly dataSource: DataSource,
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
@@ -82,22 +84,29 @@ export class ReviewsService {
           name: createReviewWithPlaceDto.name,
         },
       });
-
-      if (!place) {
-        const geoJson = JSON.stringify({
-          type: 'Point',
-          coordinates: [lng, lat], // PostGIS에서는 일반적으로 [경도, 위도] 순서입니다.
+      // 만약 동시에 한장소에 리뷰를 등록한다고한다면 에러를 뱉어야한다.
+      if (place) {
+        throw new BadRequestException({
+          code: HttpStatus.BAD_REQUEST,
+          message: '이미 첫 리뷰가 달린 장소예요. 새로고침 해주세요 ',
         });
-        place = queryRunner.manager.create(Place, {
-          name,
-          lat,
-          lng,
-          location: () => `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`,
-          roadAddr: roadAddress,
-          jibunAddr: jibunAddress,
-        });
-        place = await queryRunner.manager.save(place);
       }
+
+
+      const geoJson = JSON.stringify({
+        type: 'Point',
+        coordinates: [lng, lat], // PostGIS에서는 일반적으로 [경도, 위도] 순서입니다.
+      });
+      place = queryRunner.manager.create(Place, {
+        name,
+        lat,
+        lng,
+        location: () => `ST_SetSRID(ST_GeomFromGeoJSON('${geoJson}'), 4326)`,
+        roadAddr: roadAddress,
+        jibunAddr: jibunAddress,
+      });
+      place = await queryRunner.manager.save(place);
+
 
       // 리뷰 생성 시 place와 user를 FK에 저장.
       const review = queryRunner.manager.create(Review, {
@@ -113,10 +122,16 @@ export class ReviewsService {
         user: { id: userId },
       });
       const savedReview = await queryRunner.manager.save(review);
-
       await queryRunner.commitTransaction();
+
+      const newPlace = await this.placeRepository
+        .createQueryBuilder('place')
+        .where('place.id = :id', { id: place.id })
+        .getOne();
+
+      // 건물 명 조회해서 리턴.
       return {
-        result: { reviewId: savedReview.id, placeId: place.id },
+        result: newPlace,
         code: 200,
         message: '리뷰작성 성공',
       };

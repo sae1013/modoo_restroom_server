@@ -1,6 +1,6 @@
 import {
   BadRequestException,
-  Body, HttpStatus,
+  Body, HttpException, HttpStatus,
   Inject,
   Injectable,
   NotFoundException,
@@ -43,9 +43,12 @@ export class UsersService {
       .createQueryBuilder('user')
       .where('user.email = :email', { email: newUser.email })
       .getOne();
+
     if (duplicatedUser) {
-      // TODO: 중복회원 에러 처리
-      return null;
+      throw new BadRequestException({
+        message: '이미 가입된 메일입니다.',
+        code: HttpStatus.BAD_REQUEST,
+      });
     }
 
     const hashedPassword = await hashPassword(newUser.password);
@@ -65,6 +68,7 @@ export class UsersService {
         password: hashedPassword,
         name: newUser.name,
         nickname: '푸른달빛 모나카',
+        gender: newUser.gender,
         phoneNumber: newUser.phoneNumber,
         membership: { id: freeMembership?.id },
       })

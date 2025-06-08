@@ -39,6 +39,7 @@ export class Place {
   @Column({
     type: 'geometry',
     spatialFeatureType: 'Point',
+    select: true,
     srid: 4326,
     nullable: true,
   })

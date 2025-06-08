@@ -25,6 +25,11 @@ export class CreateUserDto {
     example: '홍길동',
   })
   readonly name: string;
+
+  @ApiProperty({
+    example: 'male',
+  })
+  gender: string;
 }
 
 export class LoginUserDto {
@@ -46,4 +51,5 @@ export class FindUserByEmailDto {
   readonly email: string;
 }
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+}
