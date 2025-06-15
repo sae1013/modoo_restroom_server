@@ -2,7 +2,7 @@ import {
   BadRequestException,
   Body, HttpException, HttpStatus,
   Inject,
-  Injectable,
+  Injectable, InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -20,7 +20,7 @@ import { Membership } from '../membership/entities/membership.entity';
 import { GmailSmtpService } from '../gmail-smtp/gmail-smtp.service';
 import { ConfigService } from '@nestjs/config';
 import { RequestPasswordResetVerificationCodeDto } from './dto/request-password-verification.dto';
-import { generateVerificationCode } from '../utils/utils';
+import { generateVerificationCode, getRandomNickName } from '../utils/utils';
 import { RedisClientType } from 'redis';
 import { VerifyPasswordResetDto } from './dto/verify-password-reset.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -38,12 +38,60 @@ export class UsersService {
   ) {
   }
 
+  async generateUniqueNickName(): Promise<string> {
+    const ATTEMPT = 100;
+    for (let i = 0; i < ATTEMPT; i++) {
+      const nickName = getRandomNickName();
+
+      const exists = await this.userRepository.createQueryBuilder('user')
+        .where('user.nickname = :nickname', { nickname: nickName })
+        .getExists();
+
+      if (!exists) {
+        return nickName;
+      }
+
+    }
+    // 100번 초과시.
+    throw new InternalServerErrorException({
+      message: '남은 닉네임이 없습니다. 관리자에게 문의하세요',
+      code: '500',
+    });
+  }
+
   async create(newUser: CreateUserDto) {
+    // 이미 해당 이메일로 가입한 유저가 있는지 (탈퇴 유저 포함)
     const duplicatedUser = await this.userRepository
       .createQueryBuilder('user')
       .where('user.email = :email', { email: newUser.email })
       .getOne();
 
+    // 탈퇴 유저인경우 복구처리
+    if (duplicatedUser && !duplicatedUser?.isActive) {
+      await this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({ isActive: true })
+        .where('email = :email', { email: newUser.email })
+        .execute();
+
+      const reactivatedUser = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.membership', 'membership')
+        .where('user.email = :email', { email: newUser.email })
+        .getOne();
+
+      const { email, name, nickname, phoneNumber } = reactivatedUser as User;
+      return {
+        email,
+        name,
+        nickname,
+        phoneNumber,
+        membership: { name: (reactivatedUser as User).membership.name },
+      };
+    }
+
+    // 기가입자인 경우 중복유저 처리
     if (duplicatedUser) {
       throw new BadRequestException({
         message: '이미 가입된 메일입니다.',
@@ -59,6 +107,9 @@ export class UsersService {
       .where('membership.name = :name', { name: 'free' })
       .getOne();
 
+    // 최대 100번 랜덤닉네임 생성 시도.
+    const nickName = await this.generateUniqueNickName();
+
     const insertResult = await this.userRepository
       .createQueryBuilder('user')
       .insert()
@@ -67,7 +118,7 @@ export class UsersService {
         email: newUser.email,
         password: hashedPassword,
         name: newUser.name,
-        nickname: '푸른달빛 모나카',
+        nickname: nickName,
         gender: newUser.gender,
         phoneNumber: newUser.phoneNumber,
         membership: { id: freeMembership?.id },

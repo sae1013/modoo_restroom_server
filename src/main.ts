@@ -10,6 +10,8 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     origin: [
+      'https://haewuso.shop',
+      'http://haewuso.shop',
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://192.168.219.118:3000',
