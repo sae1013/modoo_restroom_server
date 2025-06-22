@@ -155,6 +155,14 @@ export class ReviewsService {
       .where('review.placeId = :placeId', { placeId })
       .getMany();
 
+    if (reviews.length < 1) {
+      return {
+        reviews: [],
+        reviewCount: 0,
+        ratingAvg: 0,
+      };
+
+    }
     // 2. 해당 장소의 전체 리뷰 개수와 평균 rating을 계산합니다.
     const rawResult = await this.reviewRepository
       .createQueryBuilder('review')
@@ -200,9 +208,9 @@ export class ReviewsService {
     });
 
     return {
-      reviews: reviewsWithUserCount,
-      reviewCount: Number(rawResult.reviewCount),
-      ratingAvg: Number(rawResult.ratingAvg),
+      reviews: reviewsWithUserCount || [],
+      reviewCount: Number(rawResult.reviewCount) || 0,
+      ratingAvg: Number(rawResult.ratingAvg) || 0,
     };
   }
 
