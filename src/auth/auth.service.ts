@@ -38,6 +38,13 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('가입하지 않은 계정입니다');
     }
+    // 회원탈퇴한 게정
+    if(!user.isActive) {
+      throw new UnauthorizedException({
+        code: 400,
+        message:'탈퇴한 회원입니다.'
+      })
+    }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('비밀번호가 올바르지 않습니다.');
