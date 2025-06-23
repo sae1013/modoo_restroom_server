@@ -1,8 +1,11 @@
 import {
   BadRequestException,
-  Body, HttpException, HttpStatus,
+  Body,
+  HttpException,
+  HttpStatus,
   Inject,
-  Injectable, InternalServerErrorException,
+  Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -35,22 +38,21 @@ export class UsersService {
     @Inject(GmailSmtpService) private gmailSmtpService: GmailSmtpService,
     @Inject('REDIS_CLIENT')
     private redisClient: RedisClientType,
-  ) {
-  }
+  ) {}
 
   async generateUniqueNickName(): Promise<string> {
     const ATTEMPT = 100;
     for (let i = 0; i < ATTEMPT; i++) {
       const nickName = getRandomNickName();
 
-      const exists = await this.userRepository.createQueryBuilder('user')
+      const exists = await this.userRepository
+        .createQueryBuilder('user')
         .where('user.nickname = :nickname', { nickname: nickName })
         .getExists();
 
       if (!exists) {
         return nickName;
       }
-
     }
     // 100번 초과시.
     throw new InternalServerErrorException({
@@ -68,6 +70,19 @@ export class UsersService {
 
     // 탈퇴 유저인경우 복구처리
     if (duplicatedUser && !duplicatedUser?.isActive) {
+      // 탈퇴한 가입일이 30일 미만인 경우는 가입불가 메시지처리.
+      if (duplicatedUser.deletedAt) {
+        const now = Date.now();
+        const deletedTime = new Date(duplicatedUser.deletedAt).getTime();
+        const daysSinceDeleted = (now - deletedTime) / (1000 * 60 * 60 * 24);
+        if (daysSinceDeleted < 30) {
+          throw new BadRequestException({
+            message: '재가입은 탈퇴 후 30일 이후에 가능합니다.',
+            code: HttpStatus.BAD_REQUEST,
+          });
+        }
+      }
+
       await this.userRepository
         .createQueryBuilder()
         .update(User)
@@ -167,8 +182,7 @@ export class UsersService {
       throw new BadRequestException('이미 요청된 인증이 있습니다.');
     }
     const verificationCode = generateVerificationCode();
-    const mailSubject =
-      '[해우소] 이메일 인증 위한 인증코드를 발급해드립니다.';
+    const mailSubject = '[해우소] 이메일 인증 위한 인증코드를 발급해드립니다.';
     const mailText = `[해우소] 이메일 인증 위한 인증코드를 발급해드립니다. 인증코드: ${verificationCode}, 10분이내 인증코드를 입력해주세요`;
     const mailHtml = `<h1>[해우소] 이메일 인증을 위한 인증코드를 발급해드립니다.</h1> 
     <h3>인증코드: ${verificationCode}</h3>
@@ -197,7 +211,6 @@ export class UsersService {
         code: HttpStatus.OK,
         result: 200,
       };
-
     } else {
       throw new BadRequestException({
         code: HttpStatus.BAD_REQUEST,
@@ -207,8 +220,8 @@ export class UsersService {
   }
 
   async requestPasswordResetVerificationCode({
-                                               email,
-                                             }: RequestPasswordResetVerificationCodeDto) {
+    email,
+  }: RequestPasswordResetVerificationCodeDto) {
     await this.getUserProfileByEmail(email);
     const redisAuthCodeKey = `passwordReset:authCode:${email}`;
     const redisAuthCode = await this.redisClient.get(redisAuthCodeKey);
@@ -324,7 +337,10 @@ export class UsersService {
       {
         id: userId,
       },
-      { isActive: false },
+      {
+        isActive: false,
+        deletedAt: new Date(),
+      },
     );
     if (!updateResult.affected) {
       throw new NotFoundException('탈퇴에러');

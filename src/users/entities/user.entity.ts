@@ -40,12 +40,15 @@ export class User {
 
   @Column({ default: '' })
   gender: string;
-  
+
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deletedAt?: Date;
 
   @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
